@@ -8,3 +8,4 @@
 4、在本地删除一个分支：git branch -d newbranch
 5、在Github远端删除一个分支：git push origin :newbranch
 
+zzn
