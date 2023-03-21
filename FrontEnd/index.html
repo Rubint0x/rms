@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生管理系统</title>
+</head>
+<body>
+
+    <h5>基于Vue的学生管理系统</h5>
+    <div id="student">
+        <input type="button" value="测试" @click="test">
+
+        <div v-if="isif">hello world</div>
+    </div>
+
+    <div id="add">
+        <el-row>
+            <el-button type="primary" value="增加信息" @click="add_student">主要按钮</el-button>
+        </el-row>
+        
+        <br>
+        <h5 v-if="add_show">姓名</h5><input type="text" v-if="add_show">
+        <br>
+        <h5 v-if="add_show">学号</h5><input type="text" v-if="add_show">
+        <br>
+        <input type="button" value="提交"  @click="post_add" v-if="add_show">
+        <br>
+ 
+    </div>
+
+    
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/student.js"></script>
+</body>
+</html>
