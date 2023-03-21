@@ -93,26 +93,23 @@
                             </i-table>
                             <Modal v-model="modal1" name="" title="新增" @on-ok="ok" @on-cancel="cancel">
                                 <Form :model="formLeft" label-position="left" :label-width="100">
-                                    <FormItem label="姓名">
-                                        <Input v-model="formLeft.name"></Input>
-                                    </FormItem>
-                                    <FormItem label="年龄">
-                                        <Input v-model="formLeft.age"></Input>
-                                    </FormItem>
-                                    <FormItem label="城市">
+                                    <FormItem label="类型">
                                         <Input v-model="formLeft.city"></Input>
+                                    </FormItem>
+                                    <FormItem label="名字">
+                                        <Input v-model="formLeft.name"></Input>
                                     </FormItem>
                                 </Form>
                                 
                                 <Form :model="formTop" label-position="top">
-                                    <FormItem label="地区">
+                                    <!-- <FormItem label="地区">
                                         <Input v-model="formTop.area"></Input>
                                     </FormItem>
                                     <FormItem label="地址">
                                         <Input v-model="formTop.address"></Input>
-                                    </FormItem>
-                                    <FormItem label="邮箱">
-                                        <Input v-model="formTop.mail"></Input>
+                                    </FormItem> -->
+                                    <FormItem label="价格">
+                                        <Input v-model="formTop.price"></Input>
                                     </FormItem>
                                 </Form>
                             </Modal>
@@ -157,7 +154,7 @@
                     </div>
                 </div>
                 <div class="layout-copy">
-                    2020 &copy; 吉法师
+                    2023 &copy; 吕川，林壮豪，曾卓楠，颜智森
                 </div>
             </i-col>
         </Row>
@@ -267,21 +264,24 @@ export default {
     },
     methods:{
         loginCheck:function(){
-            axios.post("/rms/password",{
+            axios.post("/rms/login",{
                 name:this.logInfo.name,
                 password:this.logInfo.password
             }).then((response) =>{
                     if(response.data == 0)
                     {
-                        this.$Message.info("登陆成功!");
-                        this.notLogin = false;
-
-                    }
-                    else
-                    {
                         this.$Message.info("用户名或密码错误!");
                         this.notLogin = true;
-
+                    }
+                    if(response.data == 1)
+                    {
+                        this.$Message.info("普通用户，登陆成功!");
+                        this.notLogin = false;
+                    }
+                    if(response.data == 2)
+                    {
+                        this.$Message.info("管理员，登陆成功!");
+                        this.notLogin = false;
                     }
                 }).catch(function(response){
                     this.$Message.info("系统错误!");
@@ -305,10 +305,10 @@ export default {
             console.log("test2=",test2)
         },
         select_student:function(){
-            console.log('/student/select');
+            console.log('/rms/select');
             this.data_student = [];
             let that = this;
-            axios.get('/student/select',{
+            axios.get('/rms/select',{
             }).then( (response)=>{
                 console.log('response = ',response.data);
                 this.selected = true;
@@ -329,7 +329,7 @@ export default {
             })
         },
         ok () {
-            axios.post('/rms/add',{
+            axios.post('/rms/add_food',{
                 
                 name:this.formLeft.name,
                 age:this.formLeft.age,
@@ -435,8 +435,6 @@ export default {
         deletecancel (){
             this.$Message.info("取消删除");
         }
-
-
         
     },
     components: {
