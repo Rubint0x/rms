@@ -14,40 +14,41 @@ let appMysql = new Mysql_student();
 
 var router = new Router();
 
-router.post('/rms/password',async(ctx)=>{
+router.post('/rms/login',async(ctx)=>{
     let Body = ctx.request.body;
     console.log("Body = ",Body);
-    let sql_key = `select public,private from rms.RSA where type = 'login'`;
+    //let sql_key = `select public,private from rms.RSA where type = 'login'`;
     //let result = await appMysql.dbop(sql_key);
     //console.log("result = ",result);
     //let key = new NodeRSA(result[0].public); 
-    let sql_get_password = `select pwd from rms.user where username = '${Body.name}'`;
-    let passwd = await appMysql.dbop(sql_get_password);
-    if(passwd.length == 0)
+    let sql_get_password = `select pwd, type from rms.user where username = '${Body.name}'`;
+    let usrinfo_from_db = await appMysql.dbop(sql_get_password);
+    if(usrinfo_from_db.length == 0)
     {
         ctx.body = 1;
         return;
     }
     //let rawText = key.decryptPublic(passwd[0].password,'utf8');
-    console.log(passwd);
-    let rawText = passwd[0].pwd;
-    console.log(rawText);
+    console.log("usrinfo_from_db = ", usrinfo_from_db);
+    let rawText = usrinfo_from_db[0].pwd;
+    let is_admin = usrinfo_from_db[0].type;
     if(Body.password == rawText)
     {
-        ctx.body = 0;
+        if(is_admin == 0) ctx.body = 2;
+        if(is_admin == 1) ctx.body = 1;
         return;
     }
     else
     {
-        ctx.body = 1;
+        ctx.body = 0;
     }
-    ctx.body = 1;
+    ctx.body = 0;
     
 })
 
 router.get('/rms/select',async (ctx) =>{
     console.log(ctx.request.body);
-    let sql = 'select * from test.student'; //
+    let sql = 'select * from rms.student'; //
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
 
@@ -56,7 +57,38 @@ router.get('/rms/select',async (ctx) =>{
 
 })
 
-router.post('/rms/add',async(ctx)=>{
+router.post('/rms/add_user',async(ctx)=>{
+    console.log(ctx.request.body);
+    let body = ctx.request.body;
+    let sql = `insert into test.student(name,age,city,area,address,mail)
+    values('${body.name}','${body.age}','${body.city}','${body.area}','${body.address}','${body.mail}')`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+})
+
+router.post('/rms/add_food_type',async(ctx)=>{
+    console.log(ctx.request.body);
+    let body = ctx.request.body;
+    let sql = `insert into rms.food
+    values('${body.type}','${body.name}','${body.price}')`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+    
+    
+})
+
+router.post('/rms/add_tablee',async(ctx)=>{
     console.log(ctx.request.body);
     let body = ctx.request.body;
     let sql = `insert into test.student(name,age,city,area,address,mail)
@@ -73,6 +105,39 @@ router.post('/rms/add',async(ctx)=>{
     
 })
 
+router.post('/rms/add_orderr',async(ctx)=>{
+    console.log(ctx.request.body);
+    let body = ctx.request.body;
+    let sql = `insert into test.student(name,age,city,area,address,mail)
+    values('${body.name}','${body.age}','${body.city}','${body.area}','${body.address}','${body.mail}')`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+    
+    
+})
+
+router.post('/rms/add_order_detail',async(ctx)=>{
+    console.log(ctx.request.body);
+    let body = ctx.request.body;
+    let sql = `insert into test.student(name,age,city,area,address,mail)
+    values('${body.name}','${body.age}','${body.city}','${body.area}','${body.address}','${body.mail}')`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+    
+    
+})
 
 router.post('/rms/delete',async(ctx)=>{
     let Body = ctx.request.body;
