@@ -52,6 +52,8 @@
                         </template>
                         <Menu-item key="1-1" @click.native="select1(1)">管理</Menu-item>
                         <Menu-item key="1-2" @click.native="select2(1)">图表</Menu-item>
+                        <Menu-item key="1-3" @click.native="select_table(1)">桌台管理</Menu-item>
+                        <Menu-item key="1-4" @click.native="select_order(1)">订单管理</Menu-item>
                     </Submenu>
                 </Menu>
             </i-col>
@@ -82,7 +84,6 @@
                     </Form>
                 </Modal>
                 <div class="layout-content">
-                    显示区域
                     <div id="test">
                         <div v-if="test1">
                             <i-button type="info" @click.native="select_student">查询</i-button>
@@ -143,14 +144,73 @@
                                 </Form>
                             </Modal>
                             
-                            <!-- <mymodal></mymodal> -->
+                            
                         </div>
                         
                         <div v-if="test2">
                             hello2
                             
                         </div>
-                        {{test3}}
+                        <div v-if="test3">    <!-- 桌台管理 -->
+                            <i-button type="success" @click="table_add">新增</i-button>
+                            <i-button type="info" @click.native="table_del">删除</i-button>
+                            <br>
+                            <i-table width="800" border :columns="columns1" :data="data_table" > 
+                                <i-tab></i-tab>
+                            </i-table>
+                            <Modal v-model="modal_1" name="" title="新增" @on-ok="check_table_add" >
+                                <Form :model="table_da" label-position="left" :label-width="100">
+                                    <FormItem label="桌号">
+                                        <Input v-model="table_da.t_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="桌子类型">
+                                        <Input v-model="table_da.type"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+                            <Modal v-model="modal_2" name="" title="删除" @on-ok="check_table_del" >
+                                <Form :model="table_da" label-position="left" :label-width="100">
+                                    <FormItem label="桌号">
+                                        <Input v-model="table_da.t_id"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+                            <Modal v-model="table_open" name="" title="开台"  @on-ok="check_open_table" >
+                                是否开台编号为【{{table_id}}】的【{{table_type}}】
+                                <Form   label-position="left" :label-width="100">
+                                    <FormItem label="订单号"   >
+                                        <Input v-model="order_id" placeholder="请输入订单号"></Input>
+                                    </FormItem>
+                                    
+                                </Form>
+                            </Modal>
+                            <Modal v-model="table_over" name="" title="结账"  @on-ok="check_over_table" >
+                                是否结账编号为【{{table_id}}】的【{{table_type}}】
+                
+                            </Modal>
+                        </div>
+                        <div v-if="test4">    <!-- 订单管理 -->
+                            <br>
+                            <i-table width="800" border :columns="columns2" :data="data_order" > 
+                                <i-tab></i-tab>
+                            </i-table>
+                            <Modal v-model="modal4_1" name="" title="删除" @on-ok="check_table_del" >
+                                <Form :model="table_da" label-position="left" :label-width="100">
+                                    <FormItem label="桌号">
+                                        <Input v-model="table_da.t_id"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+                            <Modal v-model="modal4_3" name="" title="订单"  >
+                                <i-table width="302" border :columns="columns3" :data="data_order_detail" > 
+                                    <i-tab></i-tab>
+                                </i-table>
+                            </Modal>
+                            <Modal v-model="modal4_4" name="" title="结账"  @on-ok="check_over_order" >
+                                是否结账订单号为【{{order_id}}】的订单？
+                
+                            </Modal>
+                        </div>
                     </div>
                 </div>
                 <div class="layout-copy">
@@ -171,50 +231,115 @@ export default {
             currentIndex:-1,
             notLogin:true,
             student_name:"",
+            order_id:"",
+            table_type:"",
             delete_modal:false,
             update_modal:false,
             test1: false,
             test2: false,
-            test3: null,
+            test3: false,
+            test4: false,
+            modal_1:false,
+            modal4_1:false,
+            modal4_2:false,
+            modal4_3:false,
+            modal4_4:false,
+            table_open:false,//开台flag
+            menu_select:false,//点餐flag
             selected:null,
-            columns2: [
+            table:null,
+            // columns2: [
+            //     {
+            //         title: '姓名',
+            //         key: 'name',
+            //         width: 100,
+            //         fixed: 'left'
+            //     },
+            //     {
+            //         title: '年龄',
+            //         key: 'age',
+            //         width: 100
+            //     },
+            //     {
+            //         title: '城市',
+            //         key: 'province',
+            //         width: 100
+            //     },
+            //     {
+            //         title: '地区',
+            //         key: 'city',
+            //         width: 100
+            //     },
+            //     {
+            //         title: '地址',
+            //         key: 'address',
+            //         width: 200
+            //     },
+            //     {
+            //         title: '邮箱',
+            //         key: 'zip',
+            //         width: 100
+            //     },
+            //     {
+            //         title: '操作',
+            //         key: 'action',
+            //         fixed: 'right',
+            //         width: 120,
+            //         render: (h, params) => {
+            //                 return h('div', [
+            //                     h('Button', {
+            //                         props: {
+            //                             type: 'warning',
+            //                             size: 'small'
+            //                         },
+            //                         on: {
+            //                             click :()=>{
+            //                                 this.change(params.index);
+            //                             }
+            //                         }
+            //                     }, '修改'),
+            //                     h('Button', {
+            //                         props: {
+            //                             type: 'error',
+            //                             size: 'small'
+            //                         },
+            //                         on: {
+            //                             click :()=>{
+            //                                 this.delete(params.index);
+            //                             }
+            //                         }
+            //                     }, '删除')
+            //                 ]);
+            //             }
+            //     }
+            // ],
+            columns1: [  //表格格式
                 {
-                    title: '姓名',
-                    key: 'name',
+                    title: '桌号',
+                    key: 't_id',
                     width: 100,
-                    fixed: 'left'
+                    fixed: 'left',
+                    align: 'center'
                 },
                 {
-                    title: '年龄',
-                    key: 'age',
-                    width: 100
+                    title: '桌子类型',
+                    key: 'type',
+                    width: 100,
+                    align: 'center'
                 },
                 {
-                    title: '城市',
-                    key: 'province',
-                    width: 100
+                    title: '状态',
+                    key: 'state',
+                    width: 100,
+                    align: 'center'
                 },
                 {
-                    title: '地区',
-                    key: 'city',
-                    width: 100
-                },
-                {
-                    title: '地址',
-                    key: 'address',
-                    width: 200
-                },
-                {
-                    title: '邮箱',
-                    key: 'zip',
-                    width: 100
-                },
-                {
-                    title: '操作',
-                    key: 'action',
-                    fixed: 'right',
-                    width: 120,
+                    title: '功能',
+                    key: 'state',
+                    width: 140,
+                    align: 'center',
                     render: (h, params) => {
+                        if(this.data_table[params.index].state === '空闲'){
                             return h('div', [
                                 h('Button', {
                                     props: {
@@ -223,27 +348,144 @@ export default {
                                     },
                                     on: {
                                         click :()=>{
+                                            this.open_table(params.index);
+                                        }
+                                    }
+                                }, '开台')
+                            ]);
+                        }else{
+                        }
+                            
+                        }
+                }
+            ],
+            columns2: [  //表格格式
+                {
+                    title: '订单号',
+                    key: 'o_id',
+                    width: 100,
+                    fixed: 'left',
+                    align: 'center'
+                },
+                {
+                    title: '桌号',
+                    key: 't_id',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    title: '订单时间',
+                    key: 'date',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    title: '订单金额',
+                    key: 'sum',
+                    width: 120,
+                    align: 'center'
+                },
+                {
+                    title: '订单状态',
+                    key: 'statue',
+                    width: 120,
+                    align: 'center'
+                },
+                {
+                    title: '功能',
+                    key: 'state',
+                    width: 180,
+                    align: 'center',
+                    render: (h, params) => {
+                        if(this.data_order[params.index].statue === '已结账'){
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.get_order_detail(params.index);
+                                        }
+                                    }
+                                }, '账单')
+                            ]);
+                        }else{
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'warning',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
                                             this.change(params.index);
                                         }
                                     }
-                                }, '修改'),
+                                }, '点餐'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
                                         size: 'small'
                                     },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
                                     on: {
                                         click :()=>{
-                                            this.delete(params.index);
+                                            this.order_over(params.index);
                                         }
                                     }
-                                }, '删除')
+                                }, '结账'),
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.get_order_detail(params.index);
+                                        }
+                                    }
+                                }, '账单')
                             ]);
+                        }
                         }
                 }
             ],
+            columns3: [  //表格格式
+                {
+                    title: '菜品',
+                    key: 'f_name',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    title: '数量',
+                    key: 'count',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    title: '价格',
+                    key: 'cost',
+                    width: 100,
+                    align: 'center'
+                }
+            ],
+            data_table:[],
+            data_order:[],
             data_student: [],
+            data_order_detail:[],
             modal1:false,
+            table_da:{
+                t_id:'',
+                type:'',
+            },
             formLeft: {
                     name: '',
                     age: '',
@@ -258,6 +500,7 @@ export default {
                 name :'',
                 password:'',
             }
+            
             
         }
         
@@ -304,6 +547,199 @@ export default {
             }
             console.log("test2=",test2)
         },
+        select_table:function(){  //桌台管理
+            this.test3 = true  //显示表格
+            this.test1 = false
+            this.test2 = false
+            this.test4 = false
+            axios.post("/rms/table_get",{
+                name:this.logInfo.name,
+                password:this.logInfo.password
+            }).then((response) =>{
+                console.log("tt2=",response.data)
+                this.data_table.splice(0);                     //更新数据
+                for(let i=0;i<response.data.length;i++)
+                {
+                    let resValue = {};
+                    resValue.t_id = response.data[i].t_id;
+                    resValue.type = response.data[i].type;
+                    if(response.data[i].state){
+                        resValue.state ='使用中'
+                    }
+                    else{
+                        resValue.state ='空闲';
+                    }
+                    this.data_table.push(resValue);             //  
+                }
+                console.log("tt3=",this.data_table)
+                }).catch(function(response){
+                    this.$Message.info("系统错误!");
+                    this.notLogin = true;
+                })
+        },
+        table_add:function(){           //加桌子
+            this.select_table();
+            console.log("点击了新增");
+            this.modal_1 = true;
+            console.log('modal_1 = ',this.modal1);
+        },
+        check_table_add(){       
+            axios.post('/rms/add_table',{
+                name:this.table_da.t_id,
+                type:this.table_da.type,
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    this.select_table();
+                    if(response.data ==0)
+                    {
+                        this.$Message.info('新建成功');
+                        console.log("成功")
+                    }
+                    else
+                    {
+                        this.$Message.info('新建失败');
+                    }
+                    
+                }).catch(function(response){
+                    this.$Message.info("创建失败，系统错误！");
+                })
+        },
+        table_del:function(){        //删桌子
+            this.select_table();
+            console.log("点击了删除");
+            this.modal_2 = true;
+        },
+        check_table_del(){
+            axios.post('/rms/del_table',{
+                name:this.table_da.t_id,
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    this.select_table();
+                    if(response.data ==0)
+                    {
+                        this.$Message.info('删除成功');
+                        console.log("成功")
+                    }
+                    else
+                    {
+                        this.$Message.info('删除失败');
+                    }
+                    
+                }).catch(function(response){
+                    this.$Message.info("删除失败，系统错误！");
+                })
+        },
+        open_table:function(index){
+            this.table_open = true;
+            this.currentIndex = index;
+            let tid = this.data_table[index].t_id;
+            let ttype = this.data_table[index].type;
+            this.table_id = tid;
+            this.table_type = ttype;
+        },
+        check_open_table:function(){
+            let table = this.data_table[this.currentIndex].t_id;
+            let name = this.order_id;
+            console.log("要删除的名字为",name);
+            axios.post('/rms/open_table',{
+                name:name ,
+                table:table
+            }).then((response)=>{
+                if(response.data == 0)
+                {
+                    this.$Message.info("删除成功");
+                    this.select_table();
+                }
+                else {
+                    this.$Message.info("删除出错");
+                }
+            }).catch(function (error){
+                console.log(error);
+            })
+            
+        },
+        order_over:function(index){
+            this.modal4_4 = true;
+            this.currentIndex = index;
+            let oid = this.data_order[index].o_id;
+            this.order_id = oid;
+        },
+        check_over_order:function(){
+            let name = this.data_order[this.currentIndex].o_id;
+            let table = this.data_order[this.currentIndex].t_id;
+            console.log("要删除的名字为",name);
+            axios.post('/rms/over_order',{
+                name:name ,
+                table:table
+            }).then((response)=>{
+                if(response.data == 0)
+                {
+                    this.$Message.info("删除成功");
+                    this.select_table();
+                }
+                else {
+                    this.$Message.info("删除出错");
+                }
+            }).catch(function (error){
+                console.log(error);
+            })
+            
+        },
+        select_order:function(){  //订单管理
+            this.test4 = true
+            this.test3 = false  
+            this.test1 = false
+            this.test2 = false
+            this.data_order = [];
+            axios.post("/rms/order_get",{
+                name:this.logInfo.name,
+                password:this.logInfo.password
+                
+            }).then((response) =>{
+                console.log("tt6=",response.data)
+                               //更新数据
+                for(let i=0;i<response.data.length;i++)
+                {
+                    let resValue = {};
+                    resValue.o_id = response.data[i].o_id;
+                    resValue.t_id = response.data[i].t_id;
+                    resValue.date = response.data[i].date;
+                    resValue.sum = response.data[i].sum;
+                    if(response.data[i].statue){
+                        resValue.statue ='已结账'
+                    }
+                    else{
+                        resValue.statue ='未结账';
+                    }
+                    this.data_order.push(resValue);             //  
+                }
+                console.log("tt3=",this.data_order)
+                }).catch(function(response){
+                    this.$Message.info("系统错误!");
+                    this.notLogin = true;
+                })
+        },
+        get_order_detail:function(index){  //订单详情
+            this.data_order_detail = [];
+            console.log('data_student = ',this.data_order[index].o_id);
+            axios.post('/rms/get_order_detail',{
+                name: this.data_order[index].o_id
+            }).then( (response)=>{
+                
+                this.modal4_3 = true;
+                for(let i=0;i<response.data.length;i++)
+                {   
+                    let resValue = {};
+                    resValue.f_name = response.data[i].f_name;
+                    resValue.count = response.data[i].count;
+                    resValue.cost = response.data[i].cost;
+                    this.data_order_detail.push(resValue);
+                }
+                
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
         select_student:function(){
             console.log('/rms/select');
             this.data_student = [];
@@ -313,7 +749,7 @@ export default {
                 console.log('response = ',response.data);
                 this.selected = true;
                 for(let i=0;i<response.data.length;i++)
-                {
+                {   
                     let resValue = {};
                     resValue.name = response.data[i].Name;
                     resValue.age = response.data[i].age;
