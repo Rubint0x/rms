@@ -13,7 +13,8 @@ const app = new Koa();
 let appMysql = new Mysql_student();
 
 var router = new Router();
-
+//-----------------------------------------------------------------
+//用户登录
 router.post('/rms/login',async(ctx)=>{
     let Body = ctx.request.body;
     console.log("Body = ",Body);
@@ -45,8 +46,10 @@ router.post('/rms/login',async(ctx)=>{
     ctx.body = 0;
     
 })
-router.post('/rms/table_get',async(ctx)=>{       //获取桌台信息
 
+//-----------------------------------------------------------------
+//获取桌台信息
+router.post('/rms/get_table',async(ctx)=>{       
 
     let sql = 'select * from tablee'; //
     let sqlParam = [];
@@ -55,7 +58,8 @@ router.post('/rms/table_get',async(ctx)=>{       //获取桌台信息
     //console.log('result = ',a);
     ctx.body = a;
 })
-router.post('/rms/add_table',async(ctx)=>{      //添加桌台
+//添加桌台
+router.post('/rms/add_table',async(ctx)=>{      
     console.log(ctx.request.body);
     let body = ctx.request.body;
     let sql = `insert into rms.tablee(t_id,type,state)
@@ -69,7 +73,8 @@ router.post('/rms/add_table',async(ctx)=>{      //添加桌台
         ctx.body = 1;
     }
 })
-router.post('/rms/del_table',async(ctx)=>{      //删除桌台
+//删除桌台
+router.post('/rms/del_table',async(ctx)=>{      
     let Body = ctx.request.body;
     console.log("Body = ",Body);
     let t_id = Body.name;
@@ -81,7 +86,7 @@ router.post('/rms/del_table',async(ctx)=>{      //删除桌台
         ctx.body =1;
     }
 })
-
+//开台
 router.post('/rms/open_table',async(ctx)=>{     
     let Body = ctx.request.body;
     console.log("Body = ",Body);
@@ -95,7 +100,8 @@ router.post('/rms/open_table',async(ctx)=>{
         ctx.body =1;
     }
 })
-router.post('/rms/over_order',async(ctx)=>{   //结账
+//结账
+router.post('/rms/over_order',async(ctx)=>{   
     let Body = ctx.request.body;
     console.log("Body = ",Body);
     let o_id = Body.name;
@@ -112,14 +118,16 @@ router.post('/rms/over_order',async(ctx)=>{   //结账
     }
 })
 
-
-router.post('/rms/order_get',async(ctx)=>{       //获取订单信息
+//-----------------------------------------------------------------
+//获取订单信息
+router.post('/rms/get_order',async(ctx)=>{       
     let sql =  'select * from orderr'; 
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
     ctx.body = a;
 })
-router.post('/rms/get_order_detail',async(ctx)=>{       //获取订单详细信息
+//获取订单详细信息
+router.post('/rms/get_order_detail',async(ctx)=>{       
     let Body = ctx.request.body;
     console.log("Body = ",Body);
     let o_id = Body.name;
@@ -129,7 +137,39 @@ router.post('/rms/get_order_detail',async(ctx)=>{       //获取订单详细信�
     ctx.body = a;
 })
 
+//-----------------------------------------------------------------
+//获取用户信息
+router.post('/rms/get_user',async(ctx)=>{       
 
+    let sql = 'select u_id, username, type from user'; //
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+
+    console.log('result = ',a);
+    ctx.body = a;
+})
+
+//-----------------------------------------------------------------
+//获取菜单信息
+router.post('/rms/get_food',async(ctx)=>{       
+    let sql = 'select f_id, ty_name, f_name, price from food natural join food_type';
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+
+    ctx.body = a;
+})
+
+//获取食物种类信息
+router.post('/rms/get_food_type',async(ctx)=>{       
+    let sql = 'select ty_id, ty_name from food_type';
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+
+    ctx.body = a;
+})
+
+
+//-----------------------------------------------------------------
 router.get('/rms/select',async (ctx) =>{
     console.log(ctx.request.body);
     let sql = 'select * from rms.student'; //
@@ -140,7 +180,6 @@ router.get('/rms/select',async (ctx) =>{
     ctx.body = a;
 
 })
-
 
 router.post('/rms/add_user',async(ctx)=>{
     console.log(ctx.request.body);
