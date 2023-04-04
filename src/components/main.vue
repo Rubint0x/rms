@@ -171,37 +171,28 @@
                         </div>
 
                         <div v-else-if="idx === 't'">    <!-- 桌台管理 -->
-                            <i-button type="success" @click="add_table">新增</i-button>
-                            <i-button type="info" @click.native="del_table">删除</i-button>
+                            <i-button type="success" @click="table_add">新增</i-button>
+                            <i-button type="info" @click.native="table_del">删除</i-button>
                             <br>
                             <i-table width="440" border :columns="show_form_table" :data="data_table" > 
                                 <i-tab></i-tab>
                             </i-table>
-                            <Modal v-model="modal_1" name="" title="新增" @on-ok="check_table_add" >
+                            <Modal v-model="flag_table_add" name="" title="新增" @on-ok="check_table_add" >
                                 <Form :model="table_da" label-position="left" :label-width="100">
-                                    <FormItem label="桌号">
-                                        <Input v-model="table_da.t_id"></Input>
-                                    </FormItem>
                                     <FormItem label="桌子类型">
                                         <Input v-model="table_da.type"></Input>
                                     </FormItem>
                                 </Form>
                             </Modal>
-                            <Modal v-model="modal_2" name="" title="删除" @on-ok="check_table_del" >
+                            <Modal v-model="flag_table_del" name="" title="删除" @on-ok="check_table_del" >
                                 <Form :model="table_da" label-position="left" :label-width="100">
                                     <FormItem label="桌号">
                                         <Input v-model="table_da.t_id"></Input>
                                     </FormItem>
                                 </Form>
                             </Modal>
-                            <Modal v-model="table_open" name="" title="开台"  @on-ok="check_open_table" >
-                                是否开台编号为【{{table_id}}】的【{{table_type}}】
-                                <Form   label-position="left" :label-width="100">
-                                    <FormItem label="订单号"   >
-                                        <Input v-model="order_id" placeholder="请输入订单号"></Input>
-                                    </FormItem>
-                                    
-                                </Form>
+                            <Modal v-model="flag_table_open" name="" title="开台"  @on-ok="check_open_table" >
+                                是否开台桌号为【{{table_id}}】的【{{table_type}}】
                             </Modal>
                             <Modal v-model="table_over" name="" title="结账"  @on-ok="check_over_table" >
                                 是否结账编号为【{{table_id}}】的【{{table_type}}】
@@ -221,6 +212,19 @@
                                     </FormItem>
                                 </Form>
                             </Modal>
+                            <Modal v-model="flag_menu_select" name="" title="点餐"  @on-ok="check_menu_show">
+                                <Form :model="menu_da" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="menu_da.id"></Input>
+                                    </FormItem>
+                                    <FormItem label="数量">
+                                        <Input v-model="menu_da.count"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+                            <Modal v-model="flag_menu_sh" name="" title="结账"  @on-ok="check_menu_select" >
+                                是否下单【{{menu_da.id}}】份【{{menu_da.name}}】？
+                            </Modal>
                             <Modal v-model="modal4_3" name="" title="订单"  >
                                 <i-table width="302" border :columns="show_form_bill" :data="data_order_detail" > 
                                     <i-tab></i-tab>
@@ -228,7 +232,6 @@
                             </Modal>
                             <Modal v-model="modal4_4" name="" title="结账"  @on-ok="check_over_order" >
                                 是否结账订单号为【{{order_id}}】的订单？
-                
                             </Modal>
                         </div>
 
@@ -269,15 +272,16 @@ export default {
             delete_modal:false,
             update_modal:false,
 
-            modal_1:false,
             modal4_1:false,
             modal4_2:false,
             modal4_3:false,
             modal4_4:false,
 
-            table_open:false,//开台flag
-            menu_select:false,//点餐flag
-
+            flag_table_open:false,//开台flag
+            flag_table_add:false,
+            flag_table_del:false,
+            flag_menu_select:false,//点餐flag
+            flag_menu_sh:false,
             selected:null,
             table:null,
 
@@ -532,7 +536,7 @@ export default {
                                     },
                                     on: {
                                         click :()=>{
-                                            this.change(params.index);
+                                            this.menu_select(params.index);
                                         }
                                     }
                                 }, '点餐'),
@@ -619,6 +623,11 @@ export default {
             table_da:{
                 t_id:'',
                 type:'',
+            },
+            menu_da:{
+                id:'',
+                count:'',
+                name:'',
             },
             formLeft: {
                     name: '',
@@ -799,16 +808,14 @@ export default {
                 })
         },
 
-        add_table:function(){           //加桌子
-            this.select_table();
+        table_add:function(){           //加桌子
             console.log("点击了新增");
-            this.modal_1 = true;
+            this.flag_table_add = true;
             console.log('modal_1 = ',this.modal1);
         },
 
         check_table_add(){       
             axios.post('/rms/add_table',{
-                name:this.table_da.t_id,
                 type:this.table_da.type,
                 }).then((response) =>{
                     console.log("返回值为",response);
@@ -826,12 +833,12 @@ export default {
                 }).catch(function(response){
                     this.$Message.info("创建失败，系统错误！");
                 })
+            this.show_table();
         },
 
-        del_table:function(){        //删桌子
-            this.select_table();
+        table_del:function(){        //删桌子
             console.log("点击了删除");
-            this.modal_2 = true;
+            this.flag_table_del = true;
         },
 
         check_table_del(){
@@ -856,7 +863,7 @@ export default {
         },
 
         open_table:function(index){
-            this.table_open = true;
+            this.flag_table_open = true;
             this.currentIndex = index;
             let tid = this.data_table[index].t_id;
             let ttype = this.data_table[index].type;
@@ -866,10 +873,8 @@ export default {
 
         check_open_table:function(){
             let table = this.data_table[this.currentIndex].t_id;
-            let name = this.order_id;
             console.log("要删除的名字为",name);
             axios.post('/rms/open_table',{
-                name:name ,
                 table:table
             }).then((response)=>{
                 if(response.data == 0)
@@ -915,6 +920,43 @@ export default {
             
         },
 
+        menu_select:function(index){
+            this.flag_menu_select=true;
+            this.currentIndex = index;
+        },
+        check_menu_show:function(){
+            axios.post('/rms/get_food_name',{
+                id: this.menu_da.id
+            }).then( (response)=>{
+                this.flag_menu_sh=true;
+                console.log(response);
+                this.menu_da.name=response.data[0].f_name
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+
+        check_menu_select:function(){
+            axios.post('/rms/put_menu_select',{
+                o_id:this.data_order[this.currentIndex].o_id,
+                f_id:this.menu_da.id,
+                count:this.menu_da.count
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    if(response.data ==0)
+                    {
+                        this.$Message.info('新建成功');
+                        console.log("成功")
+                    }
+                    else
+                    {
+                        this.$Message.info('新建失败');
+                    }
+                    
+                }).catch(function(response){
+                    this.$Message.info("创建失败，系统错误！");
+                })
+        },
         get_order_detail:function(index){  //订单详情
             this.data_order_detail = [];
             console.log('data_student = ',this.data_order[index].o_id);
