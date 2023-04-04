@@ -155,52 +155,138 @@ router.post('/rms/get_food',async(ctx)=>{
     let sql = 'select f_id, ty_name, f_name, price from food natural join food_type';
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
-
     ctx.body = a;
+})
+//增加菜品
+router.post('/rms/add_food',async(ctx)=>{       
+    console.log(ctx.request.body);
+    let body = ctx.request.body;
+    let sql_type = `select ty_id from food_type where ty_name = '${body.type}'`;
+    let a = await appMysql.dbop(sql_type,null);
+    let sql = `insert into rms.food(f_id, ty_id, f_name, price)
+    values('${body.id}','${a[0].ty_id}','${body.name}','${body.price}')`;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+})
+//更新菜品
+router.post('/rms/update_food',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let f_id = Body.Data.f_id;
+    let ty_name = Body.Data.ty_name;
+    let f_name = Body.Data.f_name;
+    let price = Body.Data.price;
+
+    let sql_type = `select ty_id from food_type where ty_name = '${ty_name}'`;
+    let a = await appMysql.dbop(sql_type,null);
+
+    sql = `update rms.food set ty_id ='${a[0].ty_id}', f_name='${f_name}', price = '${price}' where f_id = '${f_id}'`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        if(count == 0)
+        {
+            ctx.body = 0;
+        }
+        else
+        {
+            ctx.body = 1;
+        }
+    }catch(error) {
+        ctx.body = -1;
+    }
+    console.log("返回值为",ctx.body);
+})
+//删除菜品
+router.post('/rms/delete_food',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let f_id = Body.f_id;
+    let sql = `delete from rms.food where f_id = '${f_id}'`;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body =0;
+    }catch (error) {
+        ctx.body =1;
+    }
 })
 
 //获取食物种类信息
-router.post('/rms/get_food_type',async(ctx)=>{       
+router.post('/rms/get_foodtype',async(ctx)=>{       
     let sql = 'select ty_id, ty_name from food_type';
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
 
     ctx.body = a;
 })
-
-
-//-----------------------------------------------------------------
-router.get('/rms/select',async (ctx) =>{
+//增加食物种类信息
+router.post('/rms/add_foodtype',async(ctx)=>{
     console.log(ctx.request.body);
-    let sql = 'select * from rms.student'; //
-    let sqlParam = [];
-    let a = await appMysql.dbop(sql,sqlParam);
+    let body = ctx.request.body;
+    let sql = `insert into rms.food_type values('${body.ty_id}','${body.ty_name}')`;
 
-    //console.log('result = ',a);
-    ctx.body = a;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body = 0;
+    }catch (error){
+        ctx.body = 1;
+    }
+})
+//修改食物种类信息
+router.post('/rms/update_foodtype',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let ty_id = Body.Data.ty_id;
+    let ty_name = Body.Data.ty_name;
 
+    sql = `update rms.food_type set ty_name='${ty_name}' where ty_id ='${ty_id}'`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        if(count == 0)
+        {
+            ctx.body = 0;
+        }
+        else
+        {
+            ctx.body = 1;
+        }
+    }catch(error) {
+        ctx.body = -1;
+    }
+    console.log("返回值为",ctx.body);
+})
+//删除食物种类信息
+router.post('/rms/delete_foodtype',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let ty_id = Body.ty_id;
+    let sql = `delete from rms.food_type where ty_id = '${ty_id}'`;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body =0;
+    }catch (error) {
+        ctx.body =1;
+    }
 })
 
+//增加用户
 router.post('/rms/add_user',async(ctx)=>{
     console.log(ctx.request.body);
     let body = ctx.request.body;
-    let sql = `insert into test.student(name,age,city,area,address,mail)
-    values('${body.name}','${body.age}','${body.city}','${body.area}','${body.address}','${body.mail}')`;
 
-    try{
-        await appMysql.dbop(sql,null);
-        
-        ctx.body = 0;
-    }catch (error){
-        ctx.body = 1;
-    }
-})
+    // let sql_key = `select public,private from rms.RSA where type = 'login'`;
+    // let result = await appMysql.dbop(sql_key);
+    // console.log("result = ",result);
+    // let key = new NodeRSA(result[0].public); 
+    // let rawText = key.decryptPublic(passwd[0].password,'utf8');
 
-router.post('/rms/add_food_type',async(ctx)=>{
-    console.log(ctx.request.body);
-    let body = ctx.request.body;
-    let sql = `insert into rms.food
-    values('${body.type}','${body.name}','${body.price}')`;
+    let sql = `insert into rms.user(u_id, username, pwd, type)
+    values('${body.u_id}','${body.username}','${body.pwd}','${body.type}')`;
 
     try{
         await appMysql.dbop(sql,null);
@@ -208,10 +294,55 @@ router.post('/rms/add_food_type',async(ctx)=>{
     }catch (error){
         ctx.body = 1;
     }
-    
-    
+
+})
+//修改用户权限
+router.post('/rms/update_user',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let u_id = Body.Data.u_id;
+    let username = Body.Data.username;
+    let pwd = Body.Data.pwd;
+    let type_s = Body.Data.type;
+    let type_n =  1 ;
+    if(type_s === " 管理员") {
+        type_n = 0;
+    }
+
+    console.log(pwd);
+
+    sql = `update rms.user set username='${username}',pwd='${pwd}',type='${type_n}' where u_id ='${u_id}'`;
+
+    try{
+        await appMysql.dbop(sql,null);
+        if(count == 0)
+        {
+            ctx.body = 0;
+        }
+        else
+        {
+            ctx.body = 1;
+        }
+    }catch(error) {
+        ctx.body = -1;
+    }
+    console.log("返回值为",ctx.body);
+})
+//删除用户
+router.post('/rms/delete_user',async(ctx)=>{
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let u_id = Body.u_id;
+    let sql = `delete from rms.user where u_id = '${u_id}'`;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body =0;
+    }catch (error) {
+        ctx.body =1;
+    }
 })
 
+//-----------------------------------------------------------------
 router.post('/rms/add_tablee',async(ctx)=>{
     console.log(ctx.request.body);
     let body = ctx.request.body;
@@ -276,48 +407,48 @@ router.post('/rms/delete',async(ctx)=>{
     }
 })
 
-router.post('/rms/update',async(ctx)=>{
-    let Body = ctx.request.body;
-    console.log("Body = ",Body);
-    let name = Body.Data.name;
-    let age = Body.Data.age;
-    let city = Body.Data.city;
-    let area = Body.Data.area;
-    let address = Body.Data.address;
-    let mail = Body.Data.mail;
-    let getsql = `select count(*) as count from test.student where name = '${name}'`;
-    let result = await appMysql.dbop(getsql,null);
+// router.post('/rms/update',async(ctx)=>{
+//     let Body = ctx.request.body;
+//     console.log("Body = ",Body);
+//     let name = Body.Data.name;
+//     let age = Body.Data.age;
+//     let city = Body.Data.city;
+//     let area = Body.Data.area;
+//     let address = Body.Data.address;
+//     let mail = Body.Data.mail;
+//     let getsql = `select count(*) as count from test.student where name = '${name}'`;
+//     let result = await appMysql.dbop(getsql,null);
     
-    let count = result[0].count;
-    console.log("count = ",count);
-    let sql = '';
-    if(count == 0)
-    {
-        sql = `insert into test.student(name,age,city,area,address,mail)
-        values('${name}','${age}','${city}','${area}','${address}','${mail}')`;
-    }
-    else
-    {
-        sql = `update test.student set age = '${age}',city ='${city}',area='${area}',address='${address}',
-        mail = '${mail}'
-        where name = '${name}'`;
-    }
-    console.log("sql =  ",sql);
-    try{
-        await appMysql.dbop(sql,null);
-        if(count == 0)
-        {
-            ctx.body = 0;
-        }
-        else
-        {
-            ctx.body = 1;
-        }
-    }catch(error) {
-        ctx.body = -1;
-    }
-    console.log("返回值为",ctx.body);
-})
+//     let count = result[0].count;
+//     console.log("count = ",count);
+//     let sql = '';
+//     if(count == 0)
+//     {
+//         sql = `insert into test.student(name,age,city,area,address,mail)
+//         values('${name}','${age}','${city}','${area}','${address}','${mail}')`;
+//     }
+//     else
+//     {
+//         sql = `update test.student set age = '${age}',city ='${city}',area='${area}',address='${address}',
+//         mail = '${mail}'
+//         where name = '${name}'`;
+//     }
+//     console.log("sql =  ",sql);
+//     try{
+//         await appMysql.dbop(sql,null);
+//         if(count == 0)
+//         {
+//             ctx.body = 0;
+//         }
+//         else
+//         {
+//             ctx.body = 1;
+//         }
+//     }catch(error) {
+//         ctx.body = -1;
+//     }
+//     console.log("返回值为",ctx.body);
+// })
 
 app.use(bodyParser());
 app.use(cors());  //跨域

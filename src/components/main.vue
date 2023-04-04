@@ -52,7 +52,7 @@
                             <Icon type="ios-select"></Icon>
                             菜单管理
                         </template>
-                        <Menu-item key="1-1" @click.native="show_food_type(1)">菜品种类管理</Menu-item>
+                        <Menu-item key="1-1" @click.native="show_foodtype(1)">菜品种类管理</Menu-item>
                         <Menu-item key="1-2" @click.native="show_food(1)">总览</Menu-item>
                     </Submenu>
 
@@ -159,22 +159,88 @@
 
                         <!-- 菜单管理 -->
                         <div v-else-if="idx === 'f_type'">   <!-- 种类管理 -->
-                            <i-table width="550" border :columns="show_form_foodtype" :data="data_food_type" > 
+                            <i-table width="800" border :columns="show_form_foodtype" :data="data_foodtype" > 
                                 <i-tab></i-tab>
                             </i-table>
+                            <Modal v-model="add_modal_foodtype" name="" title="新增" @on-ok="check_add_foodtype" @on-cancel="cancel">
+                                <Form :model="add_form_foodtype" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="add_form_foodtype.ty_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="类型">
+                                        <Input v-model="add_form_foodtype.ty_name"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+
+                            <Modal v-model="update_modal_foodtype" name="" title="修改"  @on-ok="check_update_foodtype" @on-cancel="cancel">
+                                <Form :model="update_form_foodtype" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="update_form_foodtype.ty_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="类型">
+                                        <Input v-model="update_form_foodtype.ty_name"></Input>
+                                    </FormItem>
+                                </Form>
+                        
+                            </Modal>
+                            
+                            <Modal v-model="delete_modal_foodtype" name="" title="删除" @on-ok="check_delete_foodtype" @on-cancel="cancel">
+                                是否确定要删除？
+                            </Modal>
                         </div>
 
                         <div v-else-if="idx === 'f_all'">   <!-- 总览 -->
-                            <i-table width="550" border :columns="show_form_food" :data="data_food" > 
+                            <i-table width="800" border :columns="show_form_food" :data="data_food" > 
                                 <i-tab></i-tab>
                             </i-table>
+
+                            <Modal v-model="add_modal_food" name="" title="新增" @on-ok="check_add_food" @on-cancel="cancel">
+                                <Form :model="add_form_food" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="add_form_food.f_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="类型">
+                                        <Input v-model="add_form_food.ty_name"></Input>
+                                    </FormItem>
+                                    <FormItem label="名字">
+                                        <Input v-model="add_form_food.f_name"></Input>
+                                    </FormItem>
+                                    <FormItem label="价格">
+                                        <Input v-model="add_form_food.price"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+
+                            <Modal v-model="update_modal_food" name="" title="修改"  @on-ok="check_update_food" @on-cancel="cancel">
+                                <Form :model="update_form_food" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="update_form_food.f_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="类型">
+                                        <Input v-model="update_form_food.ty_name"></Input>
+                                    </FormItem>
+                                    <FormItem label="名字">
+                                        <Input v-model="update_form_food.f_name"></Input>
+                                    </FormItem>
+                                    <FormItem label="价格">
+                                        <Input v-model="update_form_food.price"></Input>
+                                    </FormItem>
+                                </Form>
+                        
+                            </Modal>
+                            
+                            <Modal v-model="delete_modal_food" name="" title="删除" @on-ok="check_delete_food" @on-cancel="cancel">
+                                是否确定要删除？
+                            </Modal>
+
                         </div>
 
                         <div v-else-if="idx === 't'">    <!-- 桌台管理 -->
                             <i-button type="success" @click="add_table">新增</i-button>
                             <i-button type="info" @click.native="del_table">删除</i-button>
                             <br>
-                            <i-table width="440" border :columns="show_form_table" :data="data_table" > 
+                            <i-table width="800" border :columns="show_form_table" :data="data_table" > 
                                 <i-tab></i-tab>
                             </i-table>
                             <Modal v-model="modal_1" name="" title="新增" @on-ok="check_table_add" >
@@ -211,7 +277,7 @@
 
                         <div v-else-if="idx === 'o'">    <!-- 订单管理 -->
                             <br>
-                            <i-table width="722" border :columns="show_form_order" :data="data_order" > 
+                            <i-table width="800" border :columns="show_form_order" :data="data_order" > 
                                 <i-tab></i-tab>
                             </i-table>
                             <Modal v-model="modal4_1" name="" title="删除" @on-ok="check_table_del" >
@@ -233,9 +299,48 @@
                         </div>
 
                         <div v-else-if="idx === 'u'">   <!-- 用户管理 -->
-                            <i-table width="302" border :columns="show_form_user" :data="data_user" > 
+                            <i-table width="800" border :columns="show_form_user" :data="data_user" > 
                                 <i-tab></i-tab>
                             </i-table>
+
+                            <Modal v-model="add_modal_user" name="" title="新增" @on-ok="check_add_user" @on-cancel="cancel">
+                                <Form :model="add_form_user" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="add_form_user.u_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="员工姓名">
+                                        <Input v-model="add_form_user.username"></Input>
+                                    </FormItem>
+                                    <FormItem label="分配员工密码">
+                                        <Input v-model="add_form_user.pwd"></Input>
+                                    </FormItem>
+                                    <FormItem label="是否为管理员">
+                                        <Input v-model="add_form_user.type"></Input>
+                                    </FormItem>
+                                </Form>
+                            </Modal>
+
+                            <Modal v-model="update_modal_user" name="" title="修改"  @on-ok="check_update_user" @on-cancel="cancel">
+                                <Form :model="update_form_user" label-position="left" :label-width="100">
+                                    <FormItem label="id">
+                                        <Input v-model="update_form_user.u_id"></Input>
+                                    </FormItem>
+                                    <FormItem label="员工姓名">
+                                        <Input v-model="update_form_user.username"></Input>
+                                    </FormItem>
+                                    <FormItem label="分配员工密码">
+                                        <Input v-model="update_form_user.pwd"></Input>
+                                    </FormItem>
+                                    <FormItem label="是否为管理员">
+                                        <Input v-model="update_form_user.type"></Input>
+                                    </FormItem>
+                                </Form>
+                        
+                            </Modal>
+                            
+                            <Modal v-model="delete_modal_user" name="" title="删除" @on-ok="check_delete_user" @on-cancel="cancel">
+                                是否确定要删除？
+                            </Modal>
                         </div>
 
                     </div>
@@ -264,16 +369,31 @@ export default {
             notAdmin:true,//是否为管理员
 
             currentIndex:-1,
+            food_Index:-1,
+
             order_id:"",
             table_type:"",
             delete_modal:false,
             update_modal:false,
+            update_modal_food:false,
 
             modal_1:false,
             modal4_1:false,
             modal4_2:false,
             modal4_3:false,
             modal4_4:false,
+
+            add_modal_food:false,//增加食物flag
+            update_modal_food:false,//更新食物flag
+            delete_modal_food:false,//删除食物flag
+
+            add_modal_foodtype:false,//增加食物类型flag
+            update_modal_foodtype:false,//更新食物类型flag
+            delete_modal_foodtype:false,//删除食物类型flag
+
+            add_modal_user:false,//增加员工flag
+            update_modal_user:false,//更新员工flag
+            delete_modal_user:false,//删除员工flag
 
             table_open:false,//开台flag
             menu_select:false,//点餐flag
@@ -347,7 +467,7 @@ export default {
             //             }
             //     }
             // ],
-            show_form_food: [  //食物格式
+            show_form_food: [  //食物
                 {
                     title: 'id',
                     key: 'f_id',
@@ -379,9 +499,23 @@ export default {
                     align: 'center',
                     render: (h, params) => {
                             return h('div', [
-                                h('Button', {
+                            h('Button', {
                                     props: {
                                         type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.add_food(params.index);
+                                        }
+                                    }
+                                }, '新增'),
+                                h('Button', {
+                                    props: {
+                                        type: 'warning',
                                         size: 'small'
                                     },
                                     style: {
@@ -420,6 +554,55 @@ export default {
                     key: 'ty_name',
                     width: 100,
                     align: 'center'
+                },
+                {
+                    title: '功能',
+                    key: 'state',
+                    width: 180,
+                    align: 'center',
+                    render: (h, params) => {
+                            return h('div', [
+                            h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.add_foodtype(params.index);
+                                        }
+                                    }
+                                }, '新增'),
+                                h('Button', {
+                                    props: {
+                                        type: 'warning',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.update_foodtype(params.index);
+                                        }
+                                    }
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.delete_foodtype(params.index);
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
                 }
             ],
             show_form_table: [  //桌台格式
@@ -604,12 +787,61 @@ export default {
                     key: 'type',
                     width: 100,
                     align: 'center'
+                },
+                {
+                    title: '功能',
+                    key: 'state',
+                    width: 180,
+                    align: 'center',
+                    render: (h, params) => {
+                            return h('div', [
+                            h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.add_user(params.index);
+                                        }
+                                    }
+                                }, '新增'),
+                                h('Button', {
+                                    props: {
+                                        type: 'warning',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.update_user(params.index);
+                                        }
+                                    }
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click :()=>{
+                                            this.delete_user(params.index);
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
                 }
             ],
 
             //显示数据
             data_food:[],
-            data_food_type:[],
+            data_foodtype:[],
             data_table:[],
             data_order:[],
             data_order_detail:[],
@@ -620,15 +852,37 @@ export default {
                 t_id:'',
                 type:'',
             },
-            formLeft: {
-                    name: '',
-                    age: '',
-                    city: ''
-                },
-            formTop: {
-                area: '',
-                address: '',
-                mail: ''
+            add_form_food: {
+                f_id: '',
+                ty_name: '',
+                f_name: '',
+                price: ''
+            },
+            update_form_food: {
+                f_id: '',
+                ty_name: '',
+                f_name: '',
+                price: ''
+            },
+            add_form_foodtype: {
+                ty_id: '',
+                ty_name: ''
+            },
+            update_form_foodtype: {
+                ty_id: '',
+                ty_name: ''
+            },
+            add_form_user: {
+                u_id: '',
+                username: '',
+                pwd:'',
+                type:''
+            },
+            update_form_user: {
+                u_id: '',
+                username: '',
+                pwd:'',
+                type:''
             },
             logInfo:{
                 name :'',
@@ -680,34 +934,33 @@ export default {
             
             axios.post("/rms/get_food",{
             }).then((response) =>{
-
-                this.data_food.splice(0);                     //更新数据
-                for(let i=0; i<response.data.length; i++)
-                {
-                    let resValue = {};
-                    resValue.f_id = response.data[i].f_id;
-                    resValue.ty_name = response.data[i].ty_name;
-                    resValue.f_name = response.data[i].f_name;
-                    resValue.price = response.data[i].price;
-                    this.data_food.push(resValue);             
-                }
+                    this.data_food.splice(0);                     //更新数据
+                    for(let i=0; i<response.data.length; i++)
+                    {
+                        let resValue = {};
+                        resValue.f_id = response.data[i].f_id;
+                        resValue.ty_name = response.data[i].ty_name;
+                        resValue.f_name = response.data[i].f_name;
+                        resValue.price = response.data[i].price;
+                        this.data_food.push(resValue);             
+                    }
 
                 })
         },
-        show_food_type:function(){
+        show_foodtype:function(){
             this.idx = 'f_type'
             this.menuname = "菜单管理/种类管理"
 
-            axios.post("/rms/get_food_type",{
+            axios.post("/rms/get_foodtype",{
             }).then((response) =>{
 
-                this.data_food_type.splice(0);                     //更新数据
+                this.data_foodtype.splice(0);                     //更新数据
                 for(let i=0; i<response.data.length; i++)
                 {
                     let resValue = {};
                     resValue.ty_id = response.data[i].ty_id;
                     resValue.ty_name = response.data[i].ty_name;
-                    this.data_food_type.push(resValue);             
+                    this.data_foodtype.push(resValue);             
                 }
 
                 })
@@ -798,18 +1051,304 @@ export default {
                 console.log("tt3=",this.data_user)
                 })
         },
+        //-----------------------------------------------------------------
+        //菜品增删改查
+        add_food:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.add_modal_food = true;
+            this.currentIndex = index;
+        },
+        check_add_food:function(){
+            axios.post('/rms/add_food',{
+                id:this.add_form_food.f_id,
+                name:this.add_form_food.f_name,
+                type:this.add_form_food.ty_name,
+                price:this.add_form_food.price,
 
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    if(response.body == 1)
+                    {
+                        this.$Message.info('新建失败');
+                    }
+                    else
+                    {
+                        this.$Message.info('新建成功');
+                        console.log("成功")
+                    }
+                    this.show_food();
+                }).catch(function(response){
+                    this.$Message.info("创建失败，系统错误！");
+                })
+        },
+        
+        update_food:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.update_modal_food = true;
+            this.update_form_food.f_id  = this.data_food[this.currentIndex].f_id;
+            this.update_form_food.ty_name = this.data_food[this.currentIndex].ty_name;
+            this.update_form_food.f_name  =  this.data_food[this.currentIndex].f_name;
+            this.update_form_food.price  =  this.data_food[this.currentIndex].price;
+        },
+        check_update_food:function(){
+            let upadte_date_food = {};
+            upadte_date_food.f_id =this.update_form_food.f_id;
+            upadte_date_food.ty_name =  this.update_form_food.ty_name;
+            upadte_date_food.f_name =  this.update_form_food.f_name;
+            upadte_date_food.price =  this.update_form_food.price;
+
+            console.log("要发给后端的数据为",upadte_date_food);
+            axios.post("/rms/update_food",{
+                Data:upadte_date_food
+            }).then((response)=>{
+                if(response.data == 1)
+                {
+                    this.$Message.info("更新出错");
+                }
+                else {
+                    this.$Message.info("更新成功");
+                }
+                this.show_food();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+
+        delete_food:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.delete_modal_food = true;
+        },
+        check_delete_food:function(){
+            let f_id = this.data_food[this.currentIndex].f_id;
+            axios.post('/rms/delete_food',{
+                f_id:f_id 
+            }).then((response)=>{
+                if(response.data == 0)
+                {
+                    this.$Message.info("删除成功");
+                    this.select_student();
+                }
+                else {
+                    this.$Message.info("删除出错");
+                }
+                this.show_food();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+        
+        //-----------------------------------------------------------------
+        //菜品种类增删改查
+        add_foodtype:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.add_modal_foodtype = true;
+            this.currentIndex = index;
+        },
+        check_add_foodtype:function(){
+            axios.post('/rms/add_foodtype',{
+                ty_id:this.add_form_foodtype.ty_id,
+                ty_name:this.add_form_foodtype.ty_name,
+
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    if(response.body == 1)
+                    {
+                        this.$Message.info('新建失败');
+                    }
+                    else
+                    {
+                        this.$Message.info('新建成功');
+                        console.log("成功")
+                    }
+                    this.show_foodtype();
+                }).catch(function(response){
+                    this.$Message.info("创建失败，系统错误！");
+                })
+        },
+        
+        update_foodtype:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.update_modal_foodtype = true;
+            this.update_form_foodtype.ty_id  = this.data_food[this.currentIndex].ty_id;
+            this.update_form_foodtype.ty_name = this.data_food[this.currentIndex].ty_name;
+        },
+        check_update_foodtype:function(){
+            let upadte_date_foodtype = {};
+            upadte_date_foodtype.ty_id =this.update_form_foodtype.ty_id;
+            upadte_date_foodtype.ty_name =  this.update_form_foodtype.ty_name;
+
+            console.log("要发给后端的数据为",upadte_date_foodtype);
+            axios.post("/rms/update_foodtype",{
+                Data:upadte_date_foodtype
+            }).then((response)=>{
+                if(response.data == 1)
+                {
+                    this.$Message.info("更新出错");
+                }
+                else {
+                    this.$Message.info("更新成功");
+                }
+                this.show_foodtype();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+
+        delete_foodtype:function(index){
+            
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.delete_modal_foodtype = true;
+        },
+        check_delete_foodtype:function(){
+            let ty_id = this.data_foodtype[this.currentIndex].ty_id;
+            axios.post('/rms/delete_foodtype',{
+                ty_id:ty_id 
+            }).then((response)=>{
+                if(response.data == 0)
+                {
+                    this.$Message.info("删除成功");
+                    this.select_student();
+                }
+                else {
+                    this.$Message.info("删除出错");
+                }
+                this.show_foodtype();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+        //-----------------------------------------------------------------
+        //用户增删改查
+        add_user:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.add_modal_user = true;
+            this.currentIndex = index;
+        },
+        check_add_user:function(){
+            axios.post('/rms/add_user',{
+                u_id:this.add_form_user.u_id,
+                username:this.add_form_user.username,
+                pwd:this.add_form_user.pwd,
+                type:this.add_form_user.type
+
+                }).then((response) =>{
+                    console.log("返回值为",response);
+                    if(response.body == 1)
+                    {
+                        this.$Message.info('新建失败');
+                    }
+                    else
+                    {
+                        this.$Message.info('新建成功');
+                        console.log("成功")
+                    }
+                    this.show_user();
+                }).catch(function(response){
+                    this.$Message.info("创建失败，系统错误！");
+                })
+        },
+
+        update_user:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.update_modal_user = true;
+            this.update_form_user.u_id  = this.data_user[this.currentIndex].u_id;
+            this.update_form_user.username = this.data_user[this.currentIndex].username;
+            this.update_form_user.pwd  = this.data_user[this.currentIndex].pwd;
+            this.update_form_user.type = this.data_user[this.currentIndex].type;
+        },
+        check_update_user:function(){
+            let upadte_date_user = {};
+            upadte_date_user.u_id =this.update_form_user.u_id;
+            upadte_date_user.username =  this.update_form_user.username;
+            upadte_date_user.pwd =this.update_form_user.pwd;
+            upadte_date_user.type =  this.update_form_user.type;
+
+            console.log("要发给后端的数据为",upadte_date_user);
+            axios.post("/rms/update_user",{
+                Data:upadte_date_user
+            }).then((response)=>{
+                if(response.data == 1)
+                {
+                    this.$Message.info("更新出错");
+                }
+                else {
+                    this.$Message.info("更新成功");
+                }
+                this.show_user();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+
+        delete_user:function(index){
+            if(this.notAdmin) {
+                this.$Message.info("您没有权限");
+                return;
+            }
+            this.currentIndex = index;
+            this.delete_modal_user = true;
+        },
+        check_delete_user:function(){
+            let u_id = this.data_user[this.currentIndex].u_id;
+            axios.post('/rms/delete_user',{
+                u_id:u_id 
+            }).then((response)=>{
+                if(response.data == 0)
+                {
+                    this.$Message.info("删除成功");
+                }
+                else {
+                    this.$Message.info("删除出错");
+                }
+                this.show_user();
+            }).catch(function (error){
+                console.log(error);
+            })
+        },
+
+        //-----------------------------------------------------------------
+        //桌台增删改查
         add_table:function(){           //加桌子
             this.select_table();
             console.log("点击了新增");
             this.modal_1 = true;
             console.log('modal_1 = ',this.modal1);
         },
-
-        check_table_add(){       
+        check_add_table(){       
             axios.post('/rms/add_table',{
-                name:this.table_da.t_id,
-                type:this.table_da.type,
+                id:this.add_form_food.f_id,
+                type:this.add_form_food.ty_name,
+                name:this.add_form_food.f_name,
+                price:this.add_form_food.price,
                 }).then((response) =>{
                     console.log("返回值为",response);
                     this.select_table();
@@ -833,7 +1372,6 @@ export default {
             console.log("点击了删除");
             this.modal_2 = true;
         },
-
         check_table_del(){
             axios.post('/rms/del_table',{
                 name:this.table_da.t_id,
@@ -863,7 +1401,6 @@ export default {
             this.table_id = tid;
             this.table_type = ttype;
         },
-
         check_open_table:function(){
             let table = this.data_table[this.currentIndex].t_id;
             let name = this.order_id;
@@ -886,13 +1423,12 @@ export default {
             
         },
 
-        order_over:function(index){
+        order_over:function(index){//结账
             this.modal4_4 = true;
             this.currentIndex = index;
             let oid = this.data_order[index].o_id;
             this.order_id = oid;
         },
-
         check_over_order:function(){
             let name = this.data_order[this.currentIndex].o_id;
             let table = this.data_order[this.currentIndex].t_id;
@@ -915,7 +1451,7 @@ export default {
             
         },
 
-        get_order_detail:function(index){  //订单详情
+        get_order_detail:function(index){  //账单
             this.data_order_detail = [];
             console.log('data_student = ',this.data_order[index].o_id);
             axios.post('/rms/get_order_detail',{
@@ -939,30 +1475,6 @@ export default {
 
 
         //以下参考
-        select_student:function(){
-            console.log('/rms/select');
-            this.data_student = [];
-            let that = this;
-            axios.get('/rms/select',{
-            }).then( (response)=>{
-                console.log('response = ',response.data);
-                this.selected = true;
-                for(let i=0;i<response.data.length;i++)
-                {   
-                    let resValue = {};
-                    resValue.name = response.data[i].Name;
-                    resValue.age = response.data[i].age;
-                    resValue.address = response.data[i].address;
-                    resValue.province = response.data[i].city;
-                    resValue.city = response.data[i].area;
-                    resValue.zip = response.data[i].mail;
-                    this.data_student.push(resValue);
-                }
-                console.log('data_student = ',this.data_student);
-            }).catch(function (error){
-                console.log(error);
-            })
-        },
         ok () {
             axios.post('/rms/add_food',{
                 
