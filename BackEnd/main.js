@@ -62,8 +62,8 @@ router.post('/rms/get_table',async(ctx)=>{
 router.post('/rms/add_table',async(ctx)=>{      
     console.log(ctx.request.body);
     let body = ctx.request.body;
-    let sql = `insert into rms.tablee(t_id,type,state)
-    values('${body.name}','${body.type}','0')`;
+    let sql = `insert into rms.tablee(type,state)
+    values('${body.type}','0')`;
 
     try{
         await appMysql.dbop(sql,null);
@@ -78,9 +78,11 @@ router.post('/rms/del_table',async(ctx)=>{
     let Body = ctx.request.body;
     console.log("Body = ",Body);
     let t_id = Body.name;
-    let sql = `delete from rms.tablee where t_id = '${t_id}'`;
+    let sql = `delete from rms.tablee where t_id = ${t_id}`;
+    let sql1 = `ALTER TABLE rms.tablee AUTO_INCREMENT =1;`;
     try{
         await appMysql.dbop(sql,null);
+        await appMysql.dbop(sql1,null);
         ctx.body =0;
     }catch (error) {
         ctx.body =1;
@@ -90,8 +92,8 @@ router.post('/rms/del_table',async(ctx)=>{
 router.post('/rms/open_table',async(ctx)=>{     
     let Body = ctx.request.body;
     console.log("Body = ",Body);
-    let sql = `update tablee set state = 1 where t_id = '${Body.table}'`;
-    let sql1 = `insert into orderr(o_id,t_id,date)values('${Body.name}','${Body.table}',NOW())`;
+    let sql = `update tablee set state = 1 where t_id = ${Body.table}`;
+    let sql1 = `insert into orderr(t_id,date)values(${Body.table},NOW())`;
     try{
         await appMysql.dbop(sql,null);
         await appMysql.dbop(sql1,null);
@@ -107,8 +109,8 @@ router.post('/rms/over_order',async(ctx)=>{
     let o_id = Body.name;
     let t_id = Body.table;
     let date = Body.date;
-    let sql = `update orderr set statue = 1 where o_id = '${o_id}'`;
-    let sql1 = `update tablee set state = 0 where t_id = '${t_id}'`;
+    let sql = `update orderr set statue = 1 where o_id = ${o_id}`;
+    let sql1 = `update tablee set state = 0 where t_id = ${t_id}`;
     try{
         await appMysql.dbop(sql,null);
         await appMysql.dbop(sql1,null);
@@ -131,12 +133,38 @@ router.post('/rms/get_order_detail',async(ctx)=>{
     let Body = ctx.request.body;
     console.log("Body = ",Body);
     let o_id = Body.name;
-    let sql = `select f_name, count, cost from order_detai natural join food where o_id = '${o_id}'`;
+    let sql = `select f_name, count, cost from order_detail natural join food where o_id = ${o_id}`;
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
     ctx.body = a;
 })
-
+//订单点菜
+router.post('/rms/put_menu_select',async(ctx)=>{       
+    let body = ctx.request.body;
+    console.log("Body = ",body);
+    let sql = `insert into rms.order_detail(o_id,f_id,count)
+    values('${body.o_id}','${body.f_id}','${body.count}')`;
+    try{
+        await appMysql.dbop(sql,null);
+        ctx.body =0;
+    }catch (error) {
+        ctx.body =1;
+    }
+})
+//删除订单
+router.post('/rms/del_order',async(ctx)=>{      
+    let Body = ctx.request.body;
+    console.log("Body = ",Body);
+    let sql = `delete from rms.orderr where o_id = ${Body.name}`;
+    let sql1 = `ALTER TABLE rms.order_detail AUTO_INCREMENT =1;`;
+    try{
+        await appMysql.dbop(sql,null);
+        await appMysql.dbop(sql1,null);
+        ctx.body =0;
+    }catch (error) {
+        ctx.body =1;
+    }
+})
 //-----------------------------------------------------------------
 //获取用户信息
 router.post('/rms/get_user',async(ctx)=>{       
@@ -181,6 +209,7 @@ router.post('/rms/update_food',async(ctx)=>{
     let f_name = Body.Data.f_name;
     let price = Body.Data.price;
 
+
     let sql_type = `select ty_id from food_type where ty_name = '${ty_name}'`;
     let a = await appMysql.dbop(sql_type,null);
 
@@ -214,7 +243,6 @@ router.post('/rms/delete_food',async(ctx)=>{
         ctx.body =1;
     }
 })
-
 //获取食物种类信息
 router.post('/rms/get_foodtype',async(ctx)=>{       
     let sql = 'select ty_id, ty_name from food_type';
@@ -273,20 +301,26 @@ router.post('/rms/delete_foodtype',async(ctx)=>{
         ctx.body =1;
     }
 })
+router.post('/rms/get_food_name',async(ctx)=>{   
+    let Body = ctx.request.body;    
+    let t_id =Body.id;
+    let sql = `select f_name from food where f_id = ${t_id}`;
 
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+
+    ctx.body = a;
+})
+
+
+
+//-----------------------------------------------------------------
 //增加用户
 router.post('/rms/add_user',async(ctx)=>{
+
     console.log(ctx.request.body);
     let body = ctx.request.body;
-
-    // let sql_key = `select public,private from rms.RSA where type = 'login'`;
-    // let result = await appMysql.dbop(sql_key);
-    // console.log("result = ",result);
-    // let key = new NodeRSA(result[0].public); 
-    // let rawText = key.decryptPublic(passwd[0].password,'utf8');
-
-    let sql = `insert into rms.user(u_id, username, pwd, type)
-    values('${body.u_id}','${body.username}','${body.pwd}','${body.type}')`;
+    let sql = `insert into rms.food_type values('${body.ty_id}','${body.ty_name}')`;
 
     try{
         await appMysql.dbop(sql,null);
@@ -294,8 +328,8 @@ router.post('/rms/add_user',async(ctx)=>{
     }catch (error){
         ctx.body = 1;
     }
-
 })
+
 //修改用户权限
 router.post('/rms/update_user',async(ctx)=>{
     let Body = ctx.request.body;
@@ -313,6 +347,7 @@ router.post('/rms/update_user',async(ctx)=>{
 
     sql = `update rms.user set username='${username}',pwd='${pwd}',type='${type_n}' where u_id ='${u_id}'`;
 
+
     try{
         await appMysql.dbop(sql,null);
         if(count == 0)
@@ -326,6 +361,7 @@ router.post('/rms/update_user',async(ctx)=>{
     }catch(error) {
         ctx.body = -1;
     }
+
     console.log("返回值为",ctx.body);
 })
 //删除用户
@@ -393,19 +429,47 @@ router.post('/rms/add_order_detail',async(ctx)=>{
     
     
 })
-
-router.post('/rms/delete',async(ctx)=>{
-    let Body = ctx.request.body;
-    console.log("Body = ",Body);
-    let name = Body.studentName;
-    let sql = `delete from test.student where name = '${name}'`;
-    try{
-        await appMysql.dbop(sql,null);
-        ctx.body =0;
-    }catch (error) {
-        ctx.body =1;
-    }
+//-----------------------------------------------------------------
+router.post('/rms/get_year_sum',async(ctx)=>{   
+    let sql = `select substring(date, 1, 4) as date,sum(sum) as sum from orderr group by year(date) order by date`;
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+    console.log(a);
+    ctx.body = a;
 })
+
+router.post('/rms/get_mon_sum',async(ctx)=>{   
+    let body = ctx.request.body;
+    console.log(body);
+    let sql = `select substring(date, 1, 7) as date,sum(sum) as sum from orderr where year(date)=${body.mon} group by substring(date, 1, 7) order by date`;
+ 
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+    
+    ctx.body = a;
+})
+router.post('/rms/get_day_sum',async(ctx)=>{   
+    let body = ctx.request.body;
+    console.log(body);
+    let sql = `select substring(date, 1, 10) as date,sum(sum) as sum from orderr where date(date) between '${body.str}' and '${body.end}' group by substring(date, 1, 10) order by date`;
+ 
+    let sqlParam = [];
+    let a = await appMysql.dbop(sql,sqlParam);
+    
+    ctx.body = a;
+})
+// router.post('/rms/delete',async(ctx)=>{
+//     let Body = ctx.request.body;
+//     console.log("Body = ",Body);
+//     let name = Body.studentName;
+//     let sql = `delete from test.student where name = '${name}'`;
+//     try{
+//         await appMysql.dbop(sql,null);
+//         ctx.body =0;
+//     }catch (error) {
+//         ctx.body =1;
+//     }
+// })
 
 // router.post('/rms/update',async(ctx)=>{
 //     let Body = ctx.request.body;
@@ -419,6 +483,7 @@ router.post('/rms/delete',async(ctx)=>{
 //     let getsql = `select count(*) as count from test.student where name = '${name}'`;
 //     let result = await appMysql.dbop(getsql,null);
     
+
 //     let count = result[0].count;
 //     console.log("count = ",count);
 //     let sql = '';
