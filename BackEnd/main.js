@@ -183,6 +183,7 @@ router.post('/rms/get_food',async(ctx)=>{
     let sql = 'select f_id, ty_name, f_name, price from food natural join food_type';
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
+
     ctx.body = a;
 })
 //增加菜品
@@ -208,7 +209,6 @@ router.post('/rms/update_food',async(ctx)=>{
     let ty_name = Body.Data.ty_name;
     let f_name = Body.Data.f_name;
     let price = Body.Data.price;
-
 
     let sql_type = `select ty_id from food_type where ty_name = '${ty_name}'`;
     let a = await appMysql.dbop(sql_type,null);
@@ -305,7 +305,6 @@ router.post('/rms/get_food_name',async(ctx)=>{
     let Body = ctx.request.body;    
     let t_id =Body.id;
     let sql = `select f_name from food where f_id = ${t_id}`;
-
     let sqlParam = [];
     let a = await appMysql.dbop(sql,sqlParam);
 
@@ -313,23 +312,22 @@ router.post('/rms/get_food_name',async(ctx)=>{
 })
 
 
-
 //-----------------------------------------------------------------
 //增加用户
 router.post('/rms/add_user',async(ctx)=>{
-
     console.log(ctx.request.body);
     let body = ctx.request.body;
-    let sql = `insert into rms.food_type values('${body.ty_id}','${body.ty_name}')`;
+    let sql = `insert into test.student(name,age,city,area,address,mail)
+    values('${body.name}','${body.age}','${body.city}','${body.area}','${body.address}','${body.mail}')`;
 
     try{
         await appMysql.dbop(sql,null);
+        
         ctx.body = 0;
     }catch (error){
         ctx.body = 1;
     }
 })
-
 //修改用户权限
 router.post('/rms/update_user',async(ctx)=>{
     let Body = ctx.request.body;
@@ -347,7 +345,6 @@ router.post('/rms/update_user',async(ctx)=>{
 
     sql = `update rms.user set username='${username}',pwd='${pwd}',type='${type_n}' where u_id ='${u_id}'`;
 
-
     try{
         await appMysql.dbop(sql,null);
         if(count == 0)
@@ -361,7 +358,6 @@ router.post('/rms/update_user',async(ctx)=>{
     }catch(error) {
         ctx.body = -1;
     }
-
     console.log("返回值为",ctx.body);
 })
 //删除用户
@@ -377,7 +373,6 @@ router.post('/rms/delete_user',async(ctx)=>{
         ctx.body =1;
     }
 })
-
 //-----------------------------------------------------------------
 router.post('/rms/add_tablee',async(ctx)=>{
     console.log(ctx.request.body);
@@ -437,7 +432,6 @@ router.post('/rms/get_year_sum',async(ctx)=>{
     console.log(a);
     ctx.body = a;
 })
-
 router.post('/rms/get_mon_sum',async(ctx)=>{   
     let body = ctx.request.body;
     console.log(body);
@@ -458,62 +452,6 @@ router.post('/rms/get_day_sum',async(ctx)=>{
     
     ctx.body = a;
 })
-// router.post('/rms/delete',async(ctx)=>{
-//     let Body = ctx.request.body;
-//     console.log("Body = ",Body);
-//     let name = Body.studentName;
-//     let sql = `delete from test.student where name = '${name}'`;
-//     try{
-//         await appMysql.dbop(sql,null);
-//         ctx.body =0;
-//     }catch (error) {
-//         ctx.body =1;
-//     }
-// })
-
-// router.post('/rms/update',async(ctx)=>{
-//     let Body = ctx.request.body;
-//     console.log("Body = ",Body);
-//     let name = Body.Data.name;
-//     let age = Body.Data.age;
-//     let city = Body.Data.city;
-//     let area = Body.Data.area;
-//     let address = Body.Data.address;
-//     let mail = Body.Data.mail;
-//     let getsql = `select count(*) as count from test.student where name = '${name}'`;
-//     let result = await appMysql.dbop(getsql,null);
-    
-
-//     let count = result[0].count;
-//     console.log("count = ",count);
-//     let sql = '';
-//     if(count == 0)
-//     {
-//         sql = `insert into test.student(name,age,city,area,address,mail)
-//         values('${name}','${age}','${city}','${area}','${address}','${mail}')`;
-//     }
-//     else
-//     {
-//         sql = `update test.student set age = '${age}',city ='${city}',area='${area}',address='${address}',
-//         mail = '${mail}'
-//         where name = '${name}'`;
-//     }
-//     console.log("sql =  ",sql);
-//     try{
-//         await appMysql.dbop(sql,null);
-//         if(count == 0)
-//         {
-//             ctx.body = 0;
-//         }
-//         else
-//         {
-//             ctx.body = 1;
-//         }
-//     }catch(error) {
-//         ctx.body = -1;
-//     }
-//     console.log("返回值为",ctx.body);
-// })
 
 app.use(bodyParser());
 app.use(cors());  //跨域
