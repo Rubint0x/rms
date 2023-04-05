@@ -158,8 +158,10 @@
                         </div>
 
                         <!-- 菜单管理 -->
+
                         <div v-show="idx === 'f_type'">   <!-- 种类管理 -->
                             <i-table width="550" border :columns="show_form_foodtype" :data="data_foodtype" > 
+
                                 <i-tab></i-tab>
                             </i-table>
                             <Modal v-model="add_modal_foodtype" name="" title="新增" @on-ok="check_add_foodtype" @on-cancel="cancel">
@@ -190,7 +192,9 @@
                             </Modal>
                         </div>
 
+
                         <div v-show="idx === 'f_all'">   <!-- 总览 -->
+
                             <i-table width="800" border :columns="show_form_food" :data="data_food" > 
                                 <i-tab></i-tab>
                             </i-table>
@@ -240,7 +244,7 @@
                             <i-button type="success" @click="table_add">新增</i-button>
                             <i-button type="info" @click.native="table_del">删除</i-button>
                             <br>
-                            <i-table width="440" border :columns="show_form_table" :data="data_table" > 
+                            <i-table width="800" border :columns="show_form_table" :data="data_table" > 
                                 <i-tab></i-tab>
                             </i-table>
                             <Modal v-model="flag_table_add" name="" title="新增" @on-ok="check_table_add" >
@@ -264,7 +268,7 @@
 
                         <div v-show="idx === 'o'">    <!-- 订单管理 -->
                             <br>
-                            <i-table width="722" border :columns="show_form_order" :data="data_order" > 
+                            <i-table width="800" border :columns="show_form_order" :data="data_order" > 
                                 <i-tab></i-tab>
                             </i-table>
                             
@@ -294,10 +298,12 @@
                             </Modal>
                         </div>
 
+
                         <div v-show="idx === 'u'">   <!-- 用户管理 -->
                             <i-table width="302" border :columns="show_form_user" :data="data_user" > 
                                 <i-tab></i-tab>
                             </i-table>
+
 
                             <Modal v-model="add_modal_user" name="" title="新增" @on-ok="check_add_user" @on-cancel="cancel">
                                 <Form :model="add_form_user" label-position="left" :label-width="100">
@@ -392,7 +398,9 @@ export default {
 
             currentIndex:-1,
             food_Index:-1,
+
             
+
             order_id:"",
             table_type:"",
             time_type:"",
@@ -408,6 +416,8 @@ export default {
             add_modal_food:false,//增加食物flag
             update_modal_food:false,//更新食物flag
             delete_modal_food:false,//删除食物flag
+
+
 
             add_modal_foodtype:false,//增加食物类型flag
             update_modal_foodtype:false,//更新食物类型flag
@@ -494,7 +504,7 @@ export default {
             //             }
             //     }
             // ],
-            show_form_food: [  //食物格式
+            show_form_food: [  //食物
                 {
                     title: 'id',
                     key: 'f_id',
@@ -526,7 +536,7 @@ export default {
                     align: 'center',
                     render: (h, params) => {
                             return h('div', [
-                                h('Button', {
+                            h('Button', {
                                     props: {
                                         type: 'info',
                                         size: 'small'
@@ -877,6 +887,7 @@ export default {
                                 }, '删除')
                             ]);
                         }
+
                 }
             ],
             show_form_sum: [  //营业额格式
@@ -892,6 +903,7 @@ export default {
                     width: 100,
                     align: 'center'
                 
+
                 }
             ],
             //显示数据
@@ -908,6 +920,7 @@ export default {
                 t_id:'',
                 type:'',
             },
+
             menu_da:{
                 id:'',
                 count:'',
@@ -918,6 +931,7 @@ export default {
                 star:'',
                 end:'',
             },
+
             add_form_food: {
                 f_id: '',
                 ty_name: '',
@@ -1000,17 +1014,16 @@ export default {
             
             axios.post("/rms/get_food",{
             }).then((response) =>{
-
-                this.data_food.splice(0);                     //更新数据
-                for(let i=0; i<response.data.length; i++)
-                {
-                    let resValue = {};
-                    resValue.f_id = response.data[i].f_id;
-                    resValue.ty_name = response.data[i].ty_name;
-                    resValue.f_name = response.data[i].f_name;
-                    resValue.price = response.data[i].price;
-                    this.data_food.push(resValue);             
-                }
+                    this.data_food.splice(0);                     //更新数据
+                    for(let i=0; i<response.data.length; i++)
+                    {
+                        let resValue = {};
+                        resValue.f_id = response.data[i].f_id;
+                        resValue.ty_name = response.data[i].ty_name;
+                        resValue.f_name = response.data[i].f_name;
+                        resValue.price = response.data[i].price;
+                        this.data_food.push(resValue);             
+                    }
 
                 })
         },
@@ -1118,10 +1131,12 @@ export default {
                 console.log("tt3=",this.data_user)
                 })
         },
+
         show_sum:function(){     //营业额管理
             this.idx = 'y'
             this.menuname = "营业额管理"
         },
+
         //-----------------------------------------------------------------
         //菜品增删改查
         add_food:function(index){
@@ -1138,6 +1153,7 @@ export default {
                 name:this.add_form_food.f_name,
                 type:this.add_form_food.ty_name,
                 price:this.add_form_food.price,
+
 
                 }).then((response) =>{
                     console.log("返回值为",response);
@@ -1363,6 +1379,7 @@ export default {
             upadte_date_user.pwd =this.update_form_user.pwd;
             upadte_date_user.type =  this.update_form_user.type;
 
+
             console.log("要发给后端的数据为",upadte_date_user);
             axios.post("/rms/update_user",{
                 Data:upadte_date_user
@@ -1408,15 +1425,18 @@ export default {
 
         //-----------------------------------------------------------------
         //桌台增删改查
+
         table_add:function(){           //加桌子
+
             console.log("点击了新增");
             this.flag_table_add = true;
             console.log('modal_1 = ',this.modal1);
         },
-
-        check_table_add(){       
+        check_add_table(){       
             axios.post('/rms/add_table',{
+
                 type:this.table_da.type,
+
                 }).then((response) =>{
                     console.log("返回值为",response);
                     this.select_table();
@@ -1441,7 +1461,6 @@ export default {
             console.log("点击了删除");
             this.flag_table_del = true;
         },
-
         check_table_del(){
             axios.post('/rms/del_table',{
                 name:this.table_da.t_id,
@@ -1471,7 +1490,6 @@ export default {
             this.table_id = tid;
             this.table_type = ttype;
         },
-
         check_open_table:function(){
             let table = this.data_table[this.currentIndex].t_id;
             console.log("要删除的名字为",name);
@@ -1492,13 +1510,14 @@ export default {
             
         },
 
+
         order_over:function(index){    //结账
+
             this.modal4_4 = true;
             this.currentIndex = index;
             let oid = this.data_order[index].o_id;
             this.order_id = oid;
         },
-
         check_over_order:function(){
             let name = this.data_order[this.currentIndex].o_id;
             let table = this.data_order[this.currentIndex].t_id;
@@ -1560,6 +1579,7 @@ export default {
             })
         },
 
+
         check_menu_select:function(){
             axios.post('/rms/put_menu_select',{
                 o_id:this.data_order[this.currentIndex].o_id,
@@ -1582,6 +1602,7 @@ export default {
                 })
         },
         get_order_detail:function(index){  //订单详情
+
             this.data_order_detail = [];
             console.log('data_student = ',this.data_order[index].o_id);
             axios.post('/rms/get_order_detail',{
@@ -1705,30 +1726,6 @@ export default {
         //         })
         // },
         //以下参考
-        select_student:function(){
-            console.log('/rms/select');
-            this.data_student = [];
-            let that = this;
-            axios.get('/rms/select',{
-            }).then( (response)=>{
-                console.log('response = ',response.data);
-                this.selected = true;
-                for(let i=0;i<response.data.length;i++)
-                {   
-                    let resValue = {};
-                    resValue.name = response.data[i].Name;
-                    resValue.age = response.data[i].age;
-                    resValue.address = response.data[i].address;
-                    resValue.province = response.data[i].city;
-                    resValue.city = response.data[i].area;
-                    resValue.zip = response.data[i].mail;
-                    this.data_student.push(resValue);
-                }
-                console.log('data_student = ',this.data_student);
-            }).catch(function (error){
-                console.log(error);
-            })
-        },
         ok () {
             axios.post('/rms/add_food',{
                 
